@@ -105,6 +105,82 @@ npm run dev
 └── tsconfig.json
 ```
 
+## 🐣 Drizzle ORM 小白入门
+
+### 什么是 Drizzle？
+
+**Drizzle ORM** 是一个帮助你用 TypeScript 代码操作数据库的工具。
+
+打个比方：
+- 🏦 **数据库** = 一个大仓库，用来存放你的数据（用户信息、订单、文章等）
+- 📝 **SQL** = 仓库管理员使用的专业语言，告诉仓库怎么存取东西
+- 🤖 **Drizzle ORM** = 一个翻译官，让你用熟悉的 TypeScript 代码，自动翻译成 SQL 语言
+
+### 为什么用 Drizzle？
+
+| 不用 Drizzle ❌ | 用 Drizzle ✅ |
+|----------------|--------------|
+| 需要学习复杂的 SQL 语法 | 只需写 TypeScript 代码 |
+| 容易写错 SQL，难以调试 | 有类型提示，写错会提醒 |
+| 修改表结构很麻烦 | 一条命令同步数据库 |
+
+### 项目中的关键文件
+
+本项目已经配置好了 Drizzle，你只需要了解这几个文件：
+
+```
+📁 项目根目录
+├── drizzle.config.ts      # Drizzle 配置（一般不用动）
+└── 📁 src/server/db/
+    ├── schema.ts          # ⭐ 定义数据表结构（最常编辑）
+    └── db.ts              # 数据库连接（一般不用动）
+```
+
+### 如何定义一张表？
+
+在 `src/server/db/schema.ts` 中，像这样定义一张用户表：
+
+```typescript
+import { integer, pgTable, varchar, timestamp } from "drizzle-orm/pg-core";
+
+export const users = pgTable("users", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),  // 主键，自动生成
+  name: varchar("name", { length: 255 }).notNull(),            // 用户名，必填
+  email: varchar("email", { length: 255 }).notNull().unique(), // 邮箱，必填且唯一
+  createdAt: timestamp("created_at").defaultNow(),             // 创建时间，默认当前时间
+});
+```
+
+### 常用字段类型
+
+| 类型 | 说明 | 示例 |
+|------|------|------|
+| `integer` | 整数 | 年龄、数量 |
+| `varchar` | 字符串（需指定长度） | 用户名、邮箱 |
+| `text` | 长文本 | 文章内容、描述 |
+| `boolean` | 布尔值 | 是否激活、是否已读 |
+| `timestamp` | 时间戳 | 创建时间、更新时间 |
+
+### 常用命令
+
+修改 `schema.ts` 后，运行以下命令让数据库同步更新：
+
+```bash
+# 推送表结构到数据库
+npx drizzle-kit push
+
+# 打开可视化管理界面（可以直接看数据）
+npx drizzle-kit studio
+```
+
+### 小提示 💡
+
+1. **修改表结构后** 一定要运行 `npx drizzle-kit push`，否则数据库不会更新
+2. **想看数据库里有什么？** 运行 `npx drizzle-kit studio`，浏览器会打开一个可视化界面
+3. **表名用小写复数**（如 `users`、`posts`），这是常见命名规范
+
+---
+
 ## 🗄️ 数据库使用
 
 ```typescript
